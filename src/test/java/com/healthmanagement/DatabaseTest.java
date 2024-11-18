@@ -1,10 +1,16 @@
+/*
+組員: 409261536 資工四甲 詹依燃, 410262169 資工四乙 李若榛
+*/
 package com.healthmanagement;
 
-import com.healthmanagement.config.DatabaseConfig;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.sql.Connection;
+
+import org.junit.Test;
+
+import com.healthmanagement.config.DatabaseConfig;
 
 public class DatabaseTest {
 
