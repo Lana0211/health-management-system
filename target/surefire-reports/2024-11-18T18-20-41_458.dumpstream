@@ -1,0 +1,5 @@
+# Created at 2024-11-18T18:20:41.658
+Boot Manifest-JAR contains absolute paths in classpath 'E:\Google Drive\school\輔大\大四上\軟體設計模式\Project\health-management-system\target\test-classes'
+Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+'other' has different root
+
