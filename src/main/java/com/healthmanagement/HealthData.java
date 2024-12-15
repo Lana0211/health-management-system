@@ -3,28 +3,24 @@
 */
 package com.healthmanagement;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class HealthData {
     // 屬性
     private String dataID;
     private String userID;
-    private Double heartRate;
-    private String bloodPressure; // 可能是類似 "120/80" 的格式
-    private Double bodyTemperature;
     private Double weight;
     private int steps;
+    private LocalDateTime recordedAt;
 
     // 建構子
-    public HealthData(String userID, Double heartRate, String bloodPressure,
-            Double bodyTemperature, Double weight, int steps) {
+    public HealthData(String userID, Double weight, int steps) {
         this.dataID = generateDataID();
         this.userID = userID;
-        this.heartRate = heartRate;
-        this.bloodPressure = bloodPressure;
-        this.bodyTemperature = bodyTemperature;
         this.weight = weight;
         this.steps = steps;
+        this.recordedAt = LocalDateTime.now();
     }
 
     // Getters and Setters
@@ -34,30 +30,6 @@ public class HealthData {
 
     public String getUserID() {
         return userID;
-    }
-
-    public Double getHeartRate() {
-        return heartRate;
-    }
-
-    public void setHeartRate(Double heartRate) {
-        this.heartRate = heartRate;
-    }
-
-    public String getBloodPressure() {
-        return bloodPressure;
-    }
-
-    public void setBloodPressure(String bloodPressure) {
-        this.bloodPressure = bloodPressure;
-    }
-
-    public Double getBodyTemperature() {
-        return bodyTemperature;
-    }
-
-    public void setBodyTemperature(Double bodyTemperature) {
-        this.bodyTemperature = bodyTemperature;
     }
 
     public Double getWeight() {
@@ -76,43 +48,21 @@ public class HealthData {
         this.steps = steps;
     }
 
+    public LocalDateTime getRecordedAt() {
+        return recordedAt;
+    }
+
+    public void setRecordedAt(LocalDateTime recordedAt) {
+        this.recordedAt = recordedAt;
+    }
+
     // 數據驗證方法
     public boolean validateData() {
-        return validateHeartRate() &&
-                validateBloodPressure() &&
-                validateBodyTemperature() &&
-                validateWeight() &&
-                validateSteps();
-    }
-
-    // 個別數據驗證方法
-    private boolean validateHeartRate() {
-        return heartRate != null && heartRate >= 40 && heartRate <= 200;
-    }
-
-    private boolean validateBloodPressure() {
-        if (bloodPressure == null || !bloodPressure.contains("/")) {
-            return false;
-        }
-        try {
-            String[] parts = bloodPressure.split("/");
-            int systolic = Integer.parseInt(parts[0]);
-            int diastolic = Integer.parseInt(parts[1]);
-            return systolic >= 70 && systolic <= 190 &&
-                    diastolic >= 40 && diastolic <= 130;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private boolean validateBodyTemperature() {
-        return bodyTemperature != null &&
-                bodyTemperature >= 35.0 &&
-                bodyTemperature <= 42.0;
+        return validateWeight() && validateSteps();
     }
 
     private boolean validateWeight() {
-        return weight != null && weight > 0 && weight <= 500;
+        return weight != null && weight > 0 && weight <= 200;
     }
 
     private boolean validateSteps() {
@@ -129,11 +79,9 @@ public class HealthData {
         return "HealthData{" +
                 "dataID='" + dataID + '\'' +
                 ", userID='" + userID + '\'' +
-                ", heartRate=" + heartRate +
-                ", bloodPressure='" + bloodPressure + '\'' +
-                ", bodyTemperature=" + bodyTemperature +
                 ", weight=" + weight +
                 ", steps=" + steps +
+                ", recordedAt=" + recordedAt +
                 '}';
     }
 }

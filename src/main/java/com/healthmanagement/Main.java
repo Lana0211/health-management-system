@@ -7,6 +7,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 
+import com.healthmanagement.goals.HealthGoalFactory;
+import com.healthmanagement.goals.HealthGoalInterface;
+import com.healthmanagement.observer.LineNotificationObserver;
+
 public class Main {
     private static Scanner scanner;
     private static User currentUser;
@@ -94,7 +98,8 @@ public class Main {
 
         currentUser = User.login(username, password);
         if (currentUser != null) {
-            System.out.println("Login successful!");
+            System.out.println("Login successful! User ID: " + currentUser.getUserID());
+            System.out.println("Welcome, " + currentUser.getName());
         } else {
             System.out.println("Invalid username or password.");
         }
@@ -122,15 +127,6 @@ public class Main {
 
     private static void handleHealthDataUpload() {
         try {
-            System.out.print("Heart Rate (40-200 bpm): ");
-            Double heartRate = Double.parseDouble(scanner.nextLine());
-
-            System.out.print("Blood Pressure (e.g., 120/80): ");
-            String bloodPressure = scanner.nextLine();
-
-            System.out.print("Body Temperature (35-42 °C): ");
-            Double bodyTemperature = Double.parseDouble(scanner.nextLine());
-
             System.out.print("Weight (kg): ");
             Double weight = Double.parseDouble(scanner.nextLine());
 
@@ -139,9 +135,6 @@ public class Main {
 
             HealthData data = new HealthData(
                     currentUser.getUserID(),
-                    heartRate,
-                    bloodPressure,
-                    bodyTemperature,
                     weight,
                     steps);
 
@@ -157,7 +150,7 @@ public class Main {
 
     private static void handleHealthGoalSetting() {
         try {
-            System.out.println("Available goal types: STEPS, WEIGHT, HEART_RATE");
+            System.out.println("Available goal types: STEPS, WEIGHT");
             System.out.print("Enter goal type: ");
             String goalType = scanner.nextLine().toUpperCase();
 
@@ -165,23 +158,28 @@ public class Main {
             Double targetValue = Double.parseDouble(scanner.nextLine());
 
             System.out.print("Enter start date (yyyy-MM-dd): ");
-            String startDateStr = scanner.nextLine();
-            Date startDate = dateFormat.parse(startDateStr);
+            Date startDate = dateFormat.parse(scanner.nextLine());
 
             System.out.print("Enter end date (yyyy-MM-dd): ");
-            String endDateStr = scanner.nextLine();
-            Date endDate = dateFormat.parse(endDateStr);
+            Date endDate = dateFormat.parse(scanner.nextLine());
 
-            HealthGoal goal = new HealthGoal(
-                    currentUser.getUserID(),
+            HealthGoalInterface goal = HealthGoalFactory.createHealthGoal(
+                    currentUser,
                     goalType,
                     targetValue,
                     startDate,
                     endDate);
 
-            currentUser.setHealthGoal(goal);
+            goal.addObserver(new LineNotificationObserver());
+
+            if (currentUser.setHealthGoal(goal)) {
+                System.out.println("Health goal set successfully!");
+            } else {
+                System.out.println("Failed to set health goal.");
+            }
         } catch (Exception e) {
             System.out.println("Invalid input format. Please try again.");
+            e.printStackTrace();
         }
     }
 

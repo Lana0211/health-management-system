@@ -4,8 +4,14 @@
 package com.healthmanagement;
 
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import com.healthmanagement.goals.HealthGoalInterface;
 
 public class HealthReport {
     // 屬性
@@ -19,6 +25,13 @@ public class HealthReport {
         this.reportID = generateReportID();
         this.userID = userID;
         this.reportDate = new Date();
+    }
+
+    public HealthReport(String userID, HealthData healthData, List<HealthGoalInterface> goals) {
+        this.reportID = generateReportID();
+        this.userID = userID;
+        this.reportDate = new Date();
+        generateReport(healthData, goals);
     }
 
     // Getters and Setters
@@ -39,7 +52,7 @@ public class HealthReport {
     }
 
     // 生成報告的方法
-    public void generateReport(HealthData latestData, List<HealthGoal> goals) {
+    public void generateReport(HealthData latestData, List<HealthGoalInterface> goals) {
         StringBuilder report = new StringBuilder();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -51,28 +64,38 @@ public class HealthReport {
         // 添加最新健康數據
         report.append("Current Health Status:\n");
         if (latestData != null) {
-            report.append("Heart Rate: ").append(latestData.getHeartRate()).append(" bpm\n");
-            report.append("Blood Pressure: ").append(latestData.getBloodPressure()).append("\n");
-            report.append("Body Temperature: ").append(latestData.getBodyTemperature()).append(" °C\n");
             report.append("Weight: ").append(latestData.getWeight()).append(" kg\n");
             report.append("Steps: ").append(latestData.getSteps()).append("\n\n");
         } else {
             report.append("No health data available\n\n");
         }
 
-        // 添加目標進度
-        report.append("Health Goals Progress:\n");
+        // 添加健康目標狀態
+        report.append("Health Goals:\n");
         if (goals != null && !goals.isEmpty()) {
-            for (HealthGoal goal : goals) {
+            // 在生成報告時再次檢查所有目標
+            for (HealthGoalInterface goal : goals) {
+                if (latestData != null) {
+                    goal.isGoalAchieved(latestData);
+                }
+            }
+
+            Map<String, HealthGoalInterface> latestGoals = goals.stream()
+                    .collect(Collectors.groupingBy(
+                            HealthGoalInterface::getGoalType,
+                            Collectors.collectingAndThen(
+                                    Collectors.maxBy(Comparator.comparing(HealthGoalInterface::getStartDate)),
+                                    Optional::get)));
+
+            for (HealthGoalInterface goal : latestGoals.values()) {
                 report.append("Goal Type: ").append(goal.getGoalType()).append("\n");
                 report.append("Target Value: ").append(goal.getTargetValue()).append("\n");
                 report.append("Start Date: ").append(dateFormat.format(goal.getStartDate())).append("\n");
                 report.append("End Date: ").append(dateFormat.format(goal.getEndDate())).append("\n");
-                report.append("Status: ").append(goal.getStatus()).append("\n");
-                report.append("\n");
+                report.append("Status: ").append(goal.getStatus()).append("\n\n");
             }
         } else {
-            report.append("No active health goals\n");
+            report.append("No active health goals\n\n");
         }
 
         // 添加健康建議
@@ -87,15 +110,6 @@ public class HealthReport {
         if (data == null) {
             report.append("No data available for recommendations\n");
             return;
-        }
-
-        // 心率建議
-        if (data.getHeartRate() != null) {
-            if (data.getHeartRate() > 100) {
-                report.append("- Your heart rate is elevated. Consider reducing stress and exercise intensity.\n");
-            } else if (data.getHeartRate() < 60) {
-                report.append("- Your heart rate is low. Consider consulting a healthcare provider.\n");
-            }
         }
 
         // 步數建議

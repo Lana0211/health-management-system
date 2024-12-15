@@ -1,1 +1,3 @@
 com\healthmanagement\DatabaseTest.class
+com\healthmanagement\GoalStatusUpdateTest$TestGoalObserver.class
+com\healthmanagement\GoalStatusUpdateTest.class

@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.UUID;
 
 import com.healthmanagement.config.DatabaseConfig;
+import com.healthmanagement.goals.AbstractHealthGoal;
+import com.healthmanagement.goals.HealthGoalFactory;
+import com.healthmanagement.goals.HealthGoalInterface;
 
 public class User {
     // 屬性
@@ -101,6 +104,7 @@ public class User {
                 }
             }
         } catch (SQLException e) {
+            System.out.println("Login error: " + e.getMessage());
             e.printStackTrace();
         }
         return null;
@@ -112,22 +116,30 @@ public class User {
             return false;
         }
 
-        String sql = "INSERT INTO health_data (data_id, user_id, heart_rate, blood_pressure, body_temperature, weight, steps, recorded_at) "
-                +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+        String sql = "INSERT INTO health_data (data_id, user_id, weight, steps, recorded_at) " +
+                "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)";
 
         try (Connection conn = DatabaseConfig.getDataSource().getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, data.getDataID());
             pstmt.setString(2, this.userID);
-            pstmt.setDouble(3, data.getHeartRate());
-            pstmt.setString(4, data.getBloodPressure());
-            pstmt.setDouble(5, data.getBodyTemperature());
-            pstmt.setDouble(6, data.getWeight());
-            pstmt.setInt(7, data.getSteps());
+            pstmt.setDouble(3, data.getWeight());
+            pstmt.setInt(4, data.getSteps());
 
-            return pstmt.executeUpdate() > 0;
+            boolean success = pstmt.executeUpdate() > 0;
+
+            if (success) {
+                List<HealthGoalInterface> activeGoals = getActiveGoals();
+                for (HealthGoalInterface goal : activeGoals) {
+                    if (goal instanceof AbstractHealthGoal) {
+                        ((AbstractHealthGoal) goal).setUser(this);
+                    }
+                    goal.isGoalAchieved(data);
+                }
+            }
+
+            return success;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -205,9 +217,6 @@ public class User {
                     System.out.println("Found health data record");
                     return new HealthData(
                             rs.getString("user_id"),
-                            rs.getDouble("heart_rate"),
-                            rs.getString("blood_pressure"),
-                            rs.getDouble("body_temperature"),
                             rs.getDouble("weight"),
                             rs.getInt("steps"));
                 } else {
@@ -222,19 +231,19 @@ public class User {
     }
 
     // 添加獲取用戶目標的方法
-    public List<HealthGoal> getActiveGoals() {
+    public List<HealthGoalInterface> getActiveGoals() {
         String sql = "SELECT * FROM health_goals WHERE user_id = ? AND end_date >= CURRENT_DATE AND status = 'IN_PROGRESS'";
-        List<HealthGoal> goals = new ArrayList<>();
+        List<HealthGoalInterface> goals = new ArrayList<>();
 
         try (Connection conn = DatabaseConfig.getDataSource().getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, this.userID);
+            pstmt.setString(1, this.getUserID());
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    goals.add(new HealthGoal(
-                            rs.getString("user_id"),
+                    goals.add(HealthGoalFactory.createHealthGoal(
+                            this,
                             rs.getString("goal_type"),
                             rs.getDouble("target_value"),
                             rs.getDate("start_date"),
@@ -250,16 +259,24 @@ public class User {
     // 添加生成健康報告的方法
     public HealthReport generateHealthReport() {
         HealthData latestData = getLatestHealthData();
-        List<HealthGoal> activeGoals = getActiveGoals();
+        List<HealthGoalInterface> activeGoals = getActiveGoals();
 
-        HealthReport report = new HealthReport(this.userID);
-        report.generateReport(latestData, activeGoals);
+        // 檢查並更新所有目標的狀態
+        if (latestData != null && activeGoals != null) {
+            for (HealthGoalInterface goal : activeGoals) {
+                if (goal instanceof AbstractHealthGoal) {
+                    ((AbstractHealthGoal) goal).setUser(this);
+                }
+                goal.isGoalAchieved(latestData);
+            }
+        }
 
+        HealthReport report = new HealthReport(userID, latestData, activeGoals);
         saveHealthReport(report);
         return report;
     }
 
-    public boolean setHealthGoal(HealthGoal goal) {
+    public boolean setHealthGoal(HealthGoalInterface goal) {
         String sql = "INSERT INTO health_goals (goal_id, user_id, goal_type, target_value, start_date, end_date, status) "
                 +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -275,7 +292,20 @@ public class User {
             pstmt.setDate(6, new java.sql.Date(goal.getEndDate().getTime()));
             pstmt.setString(7, goal.getStatus());
 
-            return pstmt.executeUpdate() > 0;
+            boolean success = pstmt.executeUpdate() > 0;
+
+            if (success) {
+                // 設置目標後,立即檢查最新的健康數據
+                HealthData latestData = getLatestHealthData();
+                if (latestData != null) {
+                    if (goal instanceof AbstractHealthGoal) {
+                        ((AbstractHealthGoal) goal).setUser(this);
+                    }
+                    goal.isGoalAchieved(latestData);
+                }
+            }
+
+            return success;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -304,6 +334,31 @@ public class User {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean updateGoalStatus(HealthGoalInterface goal) {
+        String sql = "UPDATE health_goals SET status = ? WHERE goal_id = ? AND user_id = ?";
+        try (Connection conn = DatabaseConfig.getDataSource().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            System.out.println("Updating goal status:");
+            System.out.println("Goal ID: " + goal.getGoalID());
+            System.out.println("User ID: " + this.userID);
+            System.out.println("New Status: " + goal.getStatus());
+
+            pstmt.setString(1, goal.getStatus());
+            pstmt.setString(2, goal.getGoalID());
+            pstmt.setString(3, this.userID);
+
+            int rowsAffected = pstmt.executeUpdate();
+            System.out.println("Rows affected: " + rowsAffected);
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.out.println("Error updating goal status: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

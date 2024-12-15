@@ -3,15 +3,19 @@
 */
 package com.healthmanagement.config;
 
+import javax.sql.DataSource;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
-import javax.sql.DataSource;
 
 public class DatabaseConfig {
     private static HikariDataSource dataSource;
 
-    public static DataSource getDataSource() {
+    private DatabaseConfig() {
+        // Private constructor to prevent instantiation
+    }
+
+    public static synchronized DataSource getDataSource() {
         if (dataSource == null) {
             HikariConfig config = new HikariConfig();
             config.setJdbcUrl("jdbc:postgresql://localhost:5432/health_db");

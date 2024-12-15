@@ -1,7 +1,14 @@
 com\healthmanagement\Main.class
 com\healthmanagement\User.class
-com\healthmanagement\HealthData.class
+com\healthmanagement\observer\GoalObserver.class
 com\healthmanagement\HealthReport.class
 com\healthmanagement\config\DatabaseConfig.class
-com\healthmanagement\HealthGoal.class
+com\healthmanagement\goals\AbstractHealthGoal.class
+com\healthmanagement\goals\HealthGoalFactory.class
 com\healthmanagement\util\IDGenerator.class
+com\healthmanagement\observer\GoalNotifier.class
+com\healthmanagement\HealthData.class
+com\healthmanagement\goals\StepsGoal.class
+com\healthmanagement\goals\WeightGoal.class
+com\healthmanagement\goals\HealthGoalInterface.class
+com\healthmanagement\observer\LineNotificationObserver.class
