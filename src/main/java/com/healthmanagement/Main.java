@@ -171,6 +171,7 @@ public class Main {
                     endDate);
 
             goal.addObserver(new LineNotificationObserver());
+            System.out.println("Added LINE notification observer");
 
             if (currentUser.setHealthGoal(goal)) {
                 System.out.println("Health goal set successfully!");
@@ -178,7 +179,7 @@ public class Main {
                 System.out.println("Failed to set health goal.");
             }
         } catch (Exception e) {
-            System.out.println("Invalid input format. Please try again.");
+            System.out.println("Error: " + e.getMessage());
             e.printStackTrace();
         }
     }

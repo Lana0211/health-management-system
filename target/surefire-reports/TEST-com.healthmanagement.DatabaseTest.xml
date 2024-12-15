@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.healthmanagement.DatabaseTest" time="0.213" tests="1" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.healthmanagement.DatabaseTest" time="0.198" tests="1" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="17"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -15,7 +15,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="TW"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk-17\bin"/>
-    <property name="sun.java.command" value="C:\Users\xixi1\AppData\Local\Temp\surefire13722462381499008110\surefirebooter-20241215181206143_3.jar C:\Users\xixi1\AppData\Local\Temp\surefire13722462381499008110 2024-12-15T18-12-06_045-jvmRun1 surefire-20241215181206143_1tmp surefire_0-20241215181206143_2tmp"/>
+    <property name="sun.java.command" value="C:\Users\xixi1\AppData\Local\Temp\surefire1248441097059206308\surefirebooter-20241215181632141_3.jar C:\Users\xixi1\AppData\Local\Temp\surefire1248441097059206308 2024-12-15T18-16-32_050-jvmRun1 surefire-20241215181632141_1tmp surefire_0-20241215181632141_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="e:\Google Drive\school\輔大\大四上\軟體設計模式\Project\health-management-system\target\test-classes;e:\Google Drive\school\輔大\大四上\軟體設計模式\Project\health-management-system\target\classes;C:\Users\xixi1\.m2\repository\org\postgresql\postgresql\42.7.2\postgresql-42.7.2.jar;C:\Users\xixi1\.m2\repository\org\checkerframework\checker-qual\3.42.0\checker-qual-3.42.0.jar;C:\Users\xixi1\.m2\repository\com\zaxxer\HikariCP\5.1.0\HikariCP-5.1.0.jar;C:\Users\xixi1\.m2\repository\org\slf4j\slf4j-api\1.7.36\slf4j-api-1.7.36.jar;C:\Users\xixi1\.m2\repository\junit\junit\4.13.2\junit-4.13.2.jar;C:\Users\xixi1\.m2\repository\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;C:\Users\xixi1\.m2\repository\com\sun\mail\javax.mail\1.6.2\javax.mail-1.6.2.jar;C:\Users\xixi1\.m2\repository\javax\activation\activation\1.1\activation-1.1.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -30,7 +30,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\xixi1\AppData\Local\Temp\surefire13722462381499008110\surefirebooter-20241215181206143_3.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\xixi1\AppData\Local\Temp\surefire1248441097059206308\surefirebooter-20241215181632141_3.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="17.0.9+11-LTS-201"/>
@@ -56,7 +56,7 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="61.0"/>
   </properties>
-  <testcase name="testDatabaseConnection" classname="com.healthmanagement.DatabaseTest" time="0.187">
+  <testcase name="testDatabaseConnection" classname="com.healthmanagement.DatabaseTest" time="0.172">
     <system-err><![CDATA[SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
 SLF4J: Defaulting to no-operation (NOP) logger implementation
 SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
